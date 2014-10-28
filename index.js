@@ -1,17 +1,19 @@
-var _ = require('underscore');
+var isString = require('lodash.isstring');
 
-module.exports = function xframe(action, options) {
+module.exports = function frameguard(action, options) {
 
   var header;
 
   if (typeof action === 'undefined') {
-    header = 'DENY';
-  } else if (_.isString(action)) {
+    header = 'SAMEORIGIN';
+  } else if (isString(action)) {
     header = action.toUpperCase();
   }
 
   if (header === 'ALLOWFROM') {
     header = 'ALLOW-FROM';
+  } else if (header === 'SAME-ORIGIN') {
+    header = 'SAMEORIGIN';
   }
 
   if (['DENY', 'ALLOW-FROM', 'SAMEORIGIN'].indexOf(header) === -1) {
@@ -19,7 +21,7 @@ module.exports = function xframe(action, options) {
   }
 
   if (header === 'ALLOW-FROM') {
-    if (!_.isString(options)) {
+    if (!isString(options)) {
       throw new Error('X-Frame: ALLOW-FROM requires a second parameter');
     }
     header = 'ALLOW-FROM ' + options;

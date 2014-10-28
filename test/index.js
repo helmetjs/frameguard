@@ -17,10 +17,10 @@ describe('frameguard', function () {
 
   describe('with proper input', function () {
 
-    it('sets header to DENY with no arguments', function (done) {
+    it('sets header to SAMEORIGIN with no arguments', function (done) {
       app.use(frameguard()).use(hello);
       request(app).get('/')
-      .expect('X-Frame-Options', 'DENY', done);
+      .expect('X-Frame-Options', 'SAMEORIGIN', done);
     });
 
     it('sets header to DENY when called with lowercase "deny"', function (done) {
@@ -37,6 +37,12 @@ describe('frameguard', function () {
 
     it('sets header to SAMEORIGIN when called with lowercase "sameorigin"', function (done) {
       app.use(frameguard('sameorigin')).use(hello);
+      request(app).get('/')
+      .expect('X-Frame-Options', 'SAMEORIGIN', done);
+    });
+
+    it('sets header to SAMEORIGIN when called with lowercase "same-origin"', function (done) {
+      app.use(frameguard('same-origin')).use(hello);
       request(app).get('/')
       .expect('X-Frame-Options', 'SAMEORIGIN', done);
     });
@@ -101,7 +107,7 @@ describe('frameguard', function () {
     function callWith() {
       var args = arguments;
       return function () {
-        return frameguard.apply(helmet, args);
+        return frameguard.apply(this, args);
       };
     }
 
