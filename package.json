@@ -1,0 +1,34 @@
+{
+  "name": "frameguard",
+  "author": "Adam Baldwin <baldwin@andyet.net> (http://andyet.net/team/baldwin)",
+  "contributors": [
+    "Evan Hahn <me@evanhahn.com> (http://evanhahn.com)"
+  ],
+  "description": "frameguard",
+  "version": "0.1.0",
+  "keywords": [
+    "helmet",
+    "security",
+    "express",
+    "connect",
+    "x-frame-options",
+    "clickjack",
+    "frame"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/helmetjs/frameguard.git"
+  },
+  "bugs": "https://github.com/helmetjs/frameguard/issues",
+  "scripts": {
+    "test": "mocha"
+  },
+  "devDependencies": {
+    "connect": "^3.3.1",
+    "mocha": "^2.0.1",
+    "supertest": "^0.14.0"
+  },
+  "dependencies": {
+    "underscore": "1.7.0"
+  }
+}
