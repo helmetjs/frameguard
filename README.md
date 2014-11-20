@@ -11,12 +11,12 @@ Usage:
 ```javascript
 var frameguard = require('frameguard');
 
-// These are equivalent:
-app.use(frameguard());
+// Don't allow me to be in ANY frames:
 app.use(frameguard('deny'));
 
 // Only let me be framed by people of the same origin:
 app.use(frameguard('sameorigin'));
+app.use(frameguard());  // defaults to this
 
 // Allow from a specific host:
 app.use(frameguard('allow-from', 'http://example.com'));
