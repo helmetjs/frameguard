@@ -102,6 +102,11 @@ describe('frameguard', function () {
 
   });
 
+  it('names its function and middleware', function () {
+    assert.equal(frameguard.name, 'frameguard');
+    assert.equal(frameguard.name, frameguard().name);
+  });
+
   describe('with improper input', function () {
 
     function callWith() {

@@ -27,7 +27,7 @@ module.exports = function frameguard(action, options) {
     header = 'ALLOW-FROM ' + options;
   }
 
-  return function xframe(req, res, next)  {
+  return function frameguard(req, res, next)  {
     res.setHeader('X-Frame-Options', header);
     next();
   };
