@@ -4,7 +4,7 @@ module.exports = function frameguard(action, options) {
 
   var header;
 
-  if (typeof action === 'undefined') {
+  if (action === undefined) {
     header = 'SAMEORIGIN';
   } else if (isString(action)) {
     header = action.toUpperCase();
