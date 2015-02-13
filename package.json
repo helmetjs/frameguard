@@ -29,6 +29,6 @@
     "supertest": "^0.15.0"
   },
   "dependencies": {
-    "lodash.isstring": "2.4.1"
+    "lodash.isstring": "3.0.0"
   }
 }
