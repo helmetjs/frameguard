@@ -4,18 +4,18 @@ var connect = require('connect');
 var request = require('supertest');
 var assert = require('assert');
 
-var hello = function (req, res) {
-  res.end('Hello world!');
-};
-
 describe('frameguard', function () {
 
-  var app;
-  beforeEach(function () {
-    app = connect();
-  });
-
   describe('with proper input', function () {
+
+    function hello(req, res) {
+      res.end('Hello world!');
+    };
+
+    var app;
+    beforeEach(function () {
+      app = connect();
+    });
 
     it('sets header to SAMEORIGIN with no arguments', function (done) {
       app.use(frameguard()).use(hello);
