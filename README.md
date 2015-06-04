@@ -23,3 +23,5 @@ app.use(frameguard('allow-from', 'http://example.com'));
 ```
 
 **Limitations:** This has pretty good (but not 100%) browser support: IE8+, Opera 10.50+, Safari 4+, Chrome 4.1+, and Firefox 3.6.9+. It only prevents against a certain class of attack, but does so pretty well. It also prevents your site from being framed, which you might want for legitimate reasons.
+
+**Warning:** The `ALLOW-FROM` header option is not supported in most browsers. Those browsers will ignore the entire header, and the frame *will* be displayed.
