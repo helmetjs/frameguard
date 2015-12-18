@@ -6,6 +6,7 @@
   ],
   "description": "Middleware to set X-Frame-Options headers",
   "version": "0.2.2",
+  "license": "MIT",
   "keywords": [
     "helmet",
     "security",
