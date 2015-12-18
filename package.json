@@ -22,14 +22,22 @@
   },
   "bugs": "https://github.com/helmetjs/frameguard/issues",
   "scripts": {
-    "test": "mocha"
+    "test": "standard && mocha"
   },
   "devDependencies": {
     "connect": "^3.3.1",
     "mocha": "^2.0.1",
+    "standard": "^5.4.1",
     "supertest": "^0.15.0"
   },
   "dependencies": {
     "lodash.isstring": "3.0.1"
+  },
+  "standard": {
+    "globals": [
+      "describe",
+      "beforeEach",
+      "it"
+    ]
   }
 }
