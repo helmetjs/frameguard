@@ -13,14 +13,17 @@ Usage:
 var frameguard = require('frameguard')
 
 // Don't allow me to be in ANY frames:
-app.use(frameguard('deny'))
+app.use(frameguard({ action: 'deny' }))
 
 // Only let me be framed by people of the same origin:
-app.use(frameguard('sameorigin'))
-app.use(frameguard())  // defaults to this
+app.use(frameguard({ action: 'sameorigin' }))
+app.use(frameguard())  // defaults to sameorigin
 
 // Allow from a specific host:
-app.use(frameguard('allow-from', 'http://example.com'))
+app.use(frameguard({
+  action: 'allow-from',
+  domain: 'http://example.com'
+}))
 ```
 
 This has pretty good (but not 100%) browser support: IE8+, Opera 10.50+, Safari 4+, Chrome 4.1+, and Firefox 3.6.9+. The `ALLOW-FROM` header option is [not supported in most browsers](https://developer.mozilla.org/en-US/docs/Web/HTTP/X-Frame-Options#Browser_compatibility). Those browsers will ignore the entire header, [and the frame *will* be displayed](https://www.owasp.org/index.php/Clickjacking_Defense_Cheat_Sheet#Limitations_2).

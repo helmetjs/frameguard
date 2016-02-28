@@ -1,33 +1,47 @@
 var isString = require('lodash.isstring')
 
-module.exports = function frameguard (action, options) {
-  var header
+function isObject (value) {
+  return !!value && typeof value === 'object'
+}
+
+module.exports = function frameguard (action, domain) {
+  var directive
+
+  // This converts String objects.
+  if (isString(action)) {
+    action = action.valueOf()
+  }
+
+  if (isObject(action)) {
+    domain = action.domain
+    action = action.action
+  }
 
   if (action === undefined) {
-    header = 'SAMEORIGIN'
+    directive = 'SAMEORIGIN'
   } else if (isString(action)) {
-    header = action.toUpperCase()
+    directive = action.toUpperCase()
   }
 
-  if (header === 'ALLOWFROM') {
-    header = 'ALLOW-FROM'
-  } else if (header === 'SAME-ORIGIN') {
-    header = 'SAMEORIGIN'
+  if (directive === 'ALLOWFROM') {
+    directive = 'ALLOW-FROM'
+  } else if (directive === 'SAME-ORIGIN') {
+    directive = 'SAMEORIGIN'
   }
 
-  if (['DENY', 'ALLOW-FROM', 'SAMEORIGIN'].indexOf(header) === -1) {
+  if (['DENY', 'ALLOW-FROM', 'SAMEORIGIN'].indexOf(directive) === -1) {
     throw new Error('X-Frame must be undefined, "DENY", "ALLOW-FROM", or "SAMEORIGIN"')
   }
 
-  if (header === 'ALLOW-FROM') {
-    if (!isString(options)) {
+  if (directive === 'ALLOW-FROM') {
+    if (!isString(domain)) {
       throw new Error('X-Frame: ALLOW-FROM requires a second parameter')
     }
-    header = 'ALLOW-FROM ' + options
+    directive = 'ALLOW-FROM ' + domain
   }
 
   return function frameguard (req, res, next) {
-    res.setHeader('X-Frame-Options', header)
+    res.setHeader('X-Frame-Options', directive)
     next()
   }
 }
