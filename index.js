@@ -1,22 +1,12 @@
-var isString = require('lodash.isstring')
+var isString = require('./lib/isstring')
 
-function isObject (value) {
-  return !!value && typeof value === 'object'
-}
+module.exports = function frameguard (options) {
+  options = options || {}
 
-module.exports = function frameguard (action, domain) {
+  var domain = options.domain
+  var action = options.action
+
   var directive
-
-  // This converts String objects.
-  if (isString(action)) {
-    action = action.valueOf()
-  }
-
-  if (isObject(action)) {
-    domain = action.domain
-    action = action.action
-  }
-
   if (action === undefined) {
     directive = 'SAMEORIGIN'
   } else if (isString(action)) {
