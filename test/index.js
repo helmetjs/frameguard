@@ -114,6 +114,26 @@ describe('frameguard', function () {
       assert.equal(directive, 'ALLOW-FROM')
       assert.equal(url, 'http://example.com')
     })
+
+    it('works with ALLOW-FROM with Array objects with any domain of the array', function (done) {
+      app.use(frameguard({
+        action: 'ALLOW-FROM',
+        domain: ['http://example.com', 'http://some-other.com']
+      }))
+      app.use(hello)
+      request(app).get('/').set('Host', 'http://some-other.com')
+      .expect('X-Frame-Options', 'ALLOW-FROM http://some-other.com', done)
+    })
+
+    it('works with ALLOW-FROM with Array objects defaulting to the first domain', function (done) {
+      app.use(frameguard({
+        action: 'ALLOW-FROM',
+        domain: ['http://example.com', 'http://some-other.com']
+      }))
+      app.use(hello)
+      request(app).get('/')
+      .expect('X-Frame-Options', 'ALLOW-FROM http://example.com', done)
+    })
   })
 
   describe('with improper input', function () {
@@ -144,7 +164,6 @@ describe('frameguard', function () {
       assert.throws(callWith({ action: 'ALLOW-FROM', domain: null }))
       assert.throws(callWith({ action: 'ALLOW-FROM', domain: false }))
       assert.throws(callWith({ action: 'ALLOW-FROM', domain: 123 }))
-      assert.throws(callWith({ action: 'ALLOW-FROM', domain: ['http://website.com', 'http//otherwebsite.com'] }))
     })
   })
 
