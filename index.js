@@ -1,4 +1,5 @@
 var isString = require('./lib/isstring')
+var isArray = Array.isArray
 
 module.exports = function frameguard (options) {
   options = options || {}
@@ -24,14 +25,26 @@ module.exports = function frameguard (options) {
   }
 
   if (directive === 'ALLOW-FROM') {
-    if (!isString(domain)) {
-      throw new Error('X-Frame: ALLOW-FROM requires a second parameter')
+    if (!isString(domain) && !isArray(domain)) {
+      throw new Error('X-Frame: ALLOW-FROM requires a domain parameter')
     }
-    directive = 'ALLOW-FROM ' + domain
   }
 
   return function frameguard (req, res, next) {
-    res.setHeader('X-Frame-Options', directive)
+    var xFrameValue = directive
+    var hostname = req.hostname || req.headers.host
+
+    if (directive === 'ALLOW-FROM') {
+      if (isString(domain)) {
+        xFrameValue = 'ALLOW-FROM ' + domain
+      }
+
+      if (isArray(domain)) {
+        xFrameValue = 'ALLOW-FROM ' + (domain.indexOf(hostname) >= 0 ? hostname : domain[0])
+      }
+    }
+
+    res.setHeader('X-Frame-Options', xFrameValue)
     next()
   }
 }
