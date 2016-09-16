@@ -144,6 +144,17 @@ describe('frameguard', function () {
       request(app).get('/').set('Host', 'github.com')
       .expect('X-Frame-Options', 'ALLOW-FROM http://example.com', done)
     })
+
+    it('defaults to the first domain if a visitor hits a weirdly-named domain', function (done) {
+      app.use(frameguard({
+        action: 'ALLOW-FROM',
+        domain: ['http://example.com', 'http://some-other.com']
+      }))
+
+      app.use(hello)
+      request(app).get('/').set('Host', 'hasOwnProperty')
+      .expect('X-Frame-Options', 'ALLOW-FROM http://example.com', done)
+    })
   })
 
   describe('improper input', function () {
