@@ -3,36 +3,13 @@ var parseHostname = require('./lib/parse-hostname')
 var isArray = Array.isArray
 
 module.exports = function frameguard (options) {
-  options = options || {}
+  options = normalizeOptions(options)
 
-  var domain = options.domain
-  var action = options.action
+  checkOptions(options)
 
-  var directive
-  if (action === undefined) {
-    directive = 'SAMEORIGIN'
-  } else if (isString(action)) {
-    directive = action.toUpperCase()
-  }
-
-  if (directive === 'ALLOWFROM') {
-    directive = 'ALLOW-FROM'
-  } else if (directive === 'SAME-ORIGIN') {
-    directive = 'SAMEORIGIN'
-  }
-
-  if (['DENY', 'ALLOW-FROM', 'SAMEORIGIN'].indexOf(directive) === -1) {
-    throw new Error('X-Frame must be undefined, "DENY", "ALLOW-FROM", or "SAMEORIGIN"')
-  }
-  if (directive === 'ALLOW-FROM') {
-    if (!isString(domain) && !isArray(domain)) {
-      throw new Error('X-Frame: ALLOW-FROM requires a domain parameter')
-    }
-  }
-
-  if ((directive === 'ALLOW-FROM') && (isArray(domain))) {
-    var allowedHostnames = domain.reduce(function (result, d) {
-      result[parseHostname(d)] = d
+  if ((options.action === 'ALLOW-FROM') && options.domains) {
+    var allowedHostnames = options.domains.reduce(function (result, domain) {
+      result[parseHostname(domain)] = domain
       return result
     }, {})
 
@@ -41,20 +18,61 @@ module.exports = function frameguard (options) {
       if (allowedHostnames.hasOwnProperty(hostname)) {
         res.setHeader('X-Frame-Options', 'ALLOW-FROM ' + allowedHostnames[hostname])
       } else {
-        res.setHeader('X-Frame-Options', 'ALLOW-FROM ' + domain[0])
+        res.setHeader('X-Frame-Options', 'ALLOW-FROM ' + options.domains[0])
       }
 
       next()
     }
   } else {
-    var value = directive
-    if (directive === 'ALLOW-FROM') {
-      value = 'ALLOW-FROM ' + domain
+    var value = options.action
+    if (options.action === 'ALLOW-FROM') {
+      value = 'ALLOW-FROM ' + options.domain
     }
 
     return function frameguard (req, res, next) {
       res.setHeader('X-Frame-Options', value)
       next()
     }
+  }
+}
+
+function normalizeOptions (options) {
+  options = options || {}
+
+  var action = options.action
+  if (action === undefined) {
+    action = 'SAMEORIGIN'
+  } else if (isString(action)) {
+    action = action.toUpperCase()
+  }
+
+  if (action === 'ALLOWFROM') {
+    action = 'ALLOW-FROM'
+  } else if (action === 'SAME-ORIGIN') {
+    action = 'SAMEORIGIN'
+  }
+
+  return {
+    action: action,
+    domain: options.domain,
+    domains: options.domains
+  }
+}
+
+function checkOptions (options) {
+  if (['DENY', 'ALLOW-FROM', 'SAMEORIGIN'].indexOf(options.action) === -1) {
+    throw new Error('X-Frame must be undefined, "DENY", "ALLOW-FROM", or "SAMEORIGIN"')
+  }
+
+  if (options.action === 'ALLOW-FROM') {
+    if (options.domain && options.domains) {
+      throw new Error('X-Frame: ALLOW-FROM allows a domain parameter or a domains parameter. Please choose one')
+    }
+
+    if (isString(options.domain)) { return }
+
+    if (isArray(options.domains) && options.domains.length) { return }
+
+    throw new Error('X-Frame: ALLOW-FROM requires a domain string or a domains array')
   }
 }

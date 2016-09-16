@@ -63,97 +63,101 @@ describe('frameguard', function () {
   })
 
   describe('allow-from', function () {
-    it('sets header properly when called with lowercase "allow-from"', function (done) {
-      app.use(frameguard({
-        action: 'allow-from',
-        domain: 'http://example.com'
-      })).use(hello)
-      request(app).get('/')
-      .expect('X-Frame-Options', 'ALLOW-FROM http://example.com', done)
-    })
+    describe('with a string domain', function () {
+      it('sets header properly when called with lowercase "allow-from"', function (done) {
+        app.use(frameguard({
+          action: 'allow-from',
+          domain: 'http://example.com'
+        })).use(hello)
+        request(app).get('/')
+        .expect('X-Frame-Options', 'ALLOW-FROM http://example.com', done)
+      })
 
-    it('sets header properly when called with uppercase "ALLOW-FROM"', function (done) {
-      app.use(frameguard({
-        action: 'ALLOW-FROM',
-        domain: 'http://example.com'
-      })).use(hello)
-      request(app).get('/')
-      .expect('X-Frame-Options', 'ALLOW-FROM http://example.com', done)
-    })
+      it('sets header properly when called with uppercase "ALLOW-FROM"', function (done) {
+        app.use(frameguard({
+          action: 'ALLOW-FROM',
+          domain: 'http://example.com'
+        })).use(hello)
+        request(app).get('/')
+        .expect('X-Frame-Options', 'ALLOW-FROM http://example.com', done)
+      })
 
-    it('sets header properly when called with lowercase "allowfrom"', function (done) {
-      app.use(frameguard({
-        action: 'allowfrom',
-        domain: 'http://example.com'
-      })).use(hello)
-      request(app).get('/')
-      .expect('X-Frame-Options', 'ALLOW-FROM http://example.com', done)
-    })
+      it('sets header properly when called with lowercase "allowfrom"', function (done) {
+        app.use(frameguard({
+          action: 'allowfrom',
+          domain: 'http://example.com'
+        })).use(hello)
+        request(app).get('/')
+        .expect('X-Frame-Options', 'ALLOW-FROM http://example.com', done)
+      })
 
-    it('sets header properly when called with uppercase "ALLOWFROM"', function (done) {
-      app.use(frameguard({
-        action: 'ALLOWFROM',
-        domain: 'http://example.com'
-      })).use(hello)
-      request(app).get('/')
-      .expect('X-Frame-Options', 'ALLOW-FROM http://example.com', done)
-    })
+      it('sets header properly when called with uppercase "ALLOWFROM"', function (done) {
+        app.use(frameguard({
+          action: 'ALLOWFROM',
+          domain: 'http://example.com'
+        })).use(hello)
+        request(app).get('/')
+        .expect('X-Frame-Options', 'ALLOW-FROM http://example.com', done)
+      })
 
-    it('works with String object set to "SAMEORIGIN" and doesn\'t change the string', function (done) {
-      var str = new String('SAMEORIGIN')  // eslint-disable-line
-      app.use(frameguard({ action: str })).use(hello)
-      request(app).get('/')
-      .expect('X-Frame-Options', 'SAMEORIGIN', function (err) {
-        assert.equal(str, 'SAMEORIGIN')
-        done(err)
+      it('works with String object set to "SAMEORIGIN" and doesn\'t change the string', function (done) {
+        var str = new String('SAMEORIGIN')  // eslint-disable-line
+        app.use(frameguard({ action: str })).use(hello)
+        request(app).get('/')
+        .expect('X-Frame-Options', 'SAMEORIGIN', function (err) {
+          assert.equal(str, 'SAMEORIGIN')
+          done(err)
+        })
+      })
+
+      it("works with ALLOW-FROM with String objects and doesn't change them", function (done) {
+        var directive = new String('ALLOW-FROM')  // eslint-disable-line
+        var url = new String('http://example.com')  // eslint-disable-line
+        app.use(frameguard({
+          action: directive,
+          domain: url
+        }))
+        app.use(hello)
+        request(app).get('/')
+        .expect('X-Frame-Options', 'ALLOW-FROM http://example.com', done)
+        assert.equal(directive, 'ALLOW-FROM')
+        assert.equal(url, 'http://example.com')
       })
     })
 
-    it("works with ALLOW-FROM with String objects and doesn't change them", function (done) {
-      var directive = new String('ALLOW-FROM')  // eslint-disable-line
-      var url = new String('http://example.com')  // eslint-disable-line
-      app.use(frameguard({
-        action: directive,
-        domain: url
-      }))
-      app.use(hello)
-      request(app).get('/')
-      .expect('X-Frame-Options', 'ALLOW-FROM http://example.com', done)
-      assert.equal(directive, 'ALLOW-FROM')
-      assert.equal(url, 'http://example.com')
-    })
+    describe('with an array of allowed domains', function () {
+      it('sets header properly when called with an array of domains and a visitor hits one of the domains', function (done) {
+        app.use(frameguard({
+          action: 'ALLOW-FROM',
+          domains: ['http://example.com', 'http://some-other.com']
+        }))
 
-    it('sets header properly when called with an array of domains and a visitor hits one of the domains', function (done) {
-      app.use(frameguard({
-        action: 'ALLOW-FROM',
-        domain: ['http://example.com', 'http://some-other.com']
-      }))
+        app.use(hello)
+        request(app).get('/').set('Host', 'some-other.com')
+          .expect('X-Frame-Options', 'ALLOW-FROM http://some-other.com', done)
+      })
 
-      app.use(hello)
-      request(app).get('/').set('Host', 'some-other.com')
-      .expect('X-Frame-Options', 'ALLOW-FROM http://some-other.com', done)
-    })
+      it('defaults to the first domain if a visitor hits a domain not in the list', function (done) {
+        app.use(frameguard({
+          action: 'ALLOW-FROM',
+          domains: ['http://example.com', 'http://some-other.com']
+        }))
 
-    it('defaults to the first domain if a visitor hits a domain not in the list', function (done) {
-      app.use(frameguard({
-        action: 'ALLOW-FROM',
-        domain: ['http://example.com', 'http://some-other.com']
-      }))
+        app.use(hello)
+        request(app).get('/').set('Host', 'github.com')
+          .expect('X-Frame-Options', 'ALLOW-FROM http://example.com', done)
+      })
 
-      app.use(hello)
-      request(app).get('/').set('Host', 'github.com')
-      .expect('X-Frame-Options', 'ALLOW-FROM http://example.com', done)
-    })
+      it('defaults to the first domain if a visitor hits a weirdly-named domain', function (done) {
+        app.use(frameguard({
+          action: 'ALLOW-FROM',
+          domains: ['http://example.com', 'http://some-other.com']
+        }))
 
-    it('defaults to the first domain if a visitor hits a weirdly-named domain', function (done) {
-      app.use(frameguard({
-        action: 'ALLOW-FROM',
-        domain: ['http://example.com', 'http://some-other.com']
-      }))
-
-      app.use(hello)
-      request(app).get('/').set('Host', 'hasOwnProperty')
-      .expect('X-Frame-Options', 'ALLOW-FROM http://example.com', done)
+        app.use(hello)
+        request(app).get('/').set('Host', 'hasOwnProperty')
+          .expect('X-Frame-Options', 'ALLOW-FROM http://example.com', done)
+      })
     })
   })
 
@@ -185,6 +189,23 @@ describe('frameguard', function () {
       assert.throws(callWith({ action: 'ALLOW-FROM', domain: null }))
       assert.throws(callWith({ action: 'ALLOW-FROM', domain: false }))
       assert.throws(callWith({ action: 'ALLOW-FROM', domain: 123 }))
+      assert.throws(callWith({ action: 'ALLOW-FROM', domain: {} }))
+    })
+
+    it('fails with a bad domains if the action is "ALLOW-FROM"', function () {
+      assert.throws(callWith({ action: 'ALLOW-FROM', domains: null }))
+      assert.throws(callWith({ action: 'ALLOW-FROM', domains: false }))
+      assert.throws(callWith({ action: 'ALLOW-FROM', domains: 123 }))
+      assert.throws(callWith({ action: 'ALLOW-FROM', domains: [] }))
+      assert.throws(callWith({ action: 'ALLOW-FROM', domains: {} }))
+    })
+
+    it('fails if there is a "domain" and a "domains" key in "ALLOW-FROM" mode', function () {
+      assert.throws(callWith({
+        action: 'ALLOW-FROM',
+        domain: 'https://example.com',
+        domains: ['http://example.com', 'http://some-other.com']
+      }))
     })
   })
 
