@@ -144,6 +144,7 @@ describe('frameguard', function () {
       assert.throws(callWith({ action: 'ALLOW-FROM', domain: null }))
       assert.throws(callWith({ action: 'ALLOW-FROM', domain: false }))
       assert.throws(callWith({ action: 'ALLOW-FROM', domain: 123 }))
+      assert.throws(callWith({ action: 'ALLOW-FROM', domain: '' }))
       assert.throws(callWith({ action: 'ALLOW-FROM', domain: ['http://website.com', 'http//otherwebsite.com'] }))
     })
   })

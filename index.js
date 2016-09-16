@@ -27,6 +27,9 @@ module.exports = function frameguard (options) {
     if (!isString(domain)) {
       throw new Error('X-Frame: ALLOW-FROM requires a second parameter')
     }
+    if (!domain.length) {
+      throw new Error('X-Frame: domain must not be empty')
+    }
     directive = 'ALLOW-FROM ' + domain
   }
 
