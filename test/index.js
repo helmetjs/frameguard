@@ -14,19 +14,21 @@ describe('frameguard', function () {
     app = connect()
   })
 
-  it('sets header to SAMEORIGIN with no arguments', function (done) {
-    app.use(frameguard()).use(hello)
-    request(app).get('/')
-    .expect('X-Frame-Options', 'SAMEORIGIN', done)
+  describe('defaults', function () {
+    it('sets header to SAMEORIGIN with no arguments', function (done) {
+      app.use(frameguard()).use(hello)
+      request(app).get('/')
+      .expect('X-Frame-Options', 'SAMEORIGIN', done)
+    })
+
+    it('sets header to SAMEORIGIN with no options', function (done) {
+      app.use(frameguard({})).use(hello)
+      request(app).get('/')
+        .expect('X-Frame-Options', 'SAMEORIGIN', done)
+    })
   })
 
-  it('sets header to SAMEORIGIN with no options', function (done) {
-    app.use(frameguard({})).use(hello)
-    request(app).get('/')
-    .expect('X-Frame-Options', 'SAMEORIGIN', done)
-  })
-
-  describe('with proper input', function () {
+  describe('deny', function () {
     it('sets header to DENY when called with lowercase "deny"', function (done) {
       app.use(frameguard({ action: 'deny' })).use(hello)
       request(app).get('/')
@@ -38,7 +40,9 @@ describe('frameguard', function () {
       request(app).get('/')
       .expect('X-Frame-Options', 'DENY', done)
     })
+  })
 
+  describe('sameorigin', function () {
     it('sets header to SAMEORIGIN when called with lowercase "sameorigin"', function (done) {
       app.use(frameguard({ action: 'sameorigin' })).use(hello)
       request(app).get('/')
@@ -56,7 +60,9 @@ describe('frameguard', function () {
       request(app).get('/')
       .expect('X-Frame-Options', 'SAMEORIGIN', done)
     })
+  })
 
+  describe('allow-from', function () {
     it('sets header properly when called with lowercase "allow-from"', function (done) {
       app.use(frameguard({
         action: 'allow-from',
@@ -93,12 +99,14 @@ describe('frameguard', function () {
       .expect('X-Frame-Options', 'ALLOW-FROM http://example.com', done)
     })
 
-    it('works with String object set to "SAMEORIGIN" and doesn\'t change them', function (done) {
+    it('works with String object set to "SAMEORIGIN" and doesn\'t change the string', function (done) {
       var str = new String('SAMEORIGIN')  // eslint-disable-line
       app.use(frameguard({ action: str })).use(hello)
       request(app).get('/')
-      .expect('X-Frame-Options', 'SAMEORIGIN', done)
-      assert.equal(str, 'SAMEORIGIN')
+      .expect('X-Frame-Options', 'SAMEORIGIN', function (err) {
+        assert.equal(str, 'SAMEORIGIN')
+        done(err)
+      })
     })
 
     it("works with ALLOW-FROM with String objects and doesn't change them", function (done) {
@@ -115,28 +123,30 @@ describe('frameguard', function () {
       assert.equal(url, 'http://example.com')
     })
 
-    it('works with ALLOW-FROM with Array objects with any domain of the array', function (done) {
+    it('sets header properly when called with an array of domains and a visitor hits one of the domains', function (done) {
       app.use(frameguard({
         action: 'ALLOW-FROM',
         domain: ['http://example.com', 'http://some-other.com']
       }))
+
       app.use(hello)
-      request(app).get('/').set('Host', 'http://some-other.com')
+      request(app).get('/').set('Host', 'some-other.com')
       .expect('X-Frame-Options', 'ALLOW-FROM http://some-other.com', done)
     })
 
-    it('works with ALLOW-FROM with Array objects defaulting to the first domain', function (done) {
+    it('defaults to the first domain if a visitor hits a domain not in the list', function (done) {
       app.use(frameguard({
         action: 'ALLOW-FROM',
         domain: ['http://example.com', 'http://some-other.com']
       }))
+
       app.use(hello)
-      request(app).get('/')
+      request(app).get('/').set('Host', 'github.com')
       .expect('X-Frame-Options', 'ALLOW-FROM http://example.com', done)
     })
   })
 
-  describe('with improper input', function () {
+  describe('improper input', function () {
     function callWith () {
       var args = arguments
       return function () {
