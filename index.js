@@ -8,31 +8,9 @@ module.exports = function frameguard (options) {
   checkOptions(options)
 
   if ((options.action === 'ALLOW-FROM') && options.domains) {
-    var allowedHostnames = options.domains.reduce(function (result, domain) {
-      result[parseHostname(domain)] = domain
-      return result
-    }, {})
-
-    return function frameguard (req, res, next) {
-      var hostname = req.hostname || req.headers.host
-      if (allowedHostnames.hasOwnProperty(hostname)) {
-        res.setHeader('X-Frame-Options', 'ALLOW-FROM ' + allowedHostnames[hostname])
-      } else {
-        res.setHeader('X-Frame-Options', 'ALLOW-FROM ' + options.domains[0])
-      }
-
-      next()
-    }
+    return middlewareForArrayOfDomains(options)
   } else {
-    var value = options.action
-    if (options.action === 'ALLOW-FROM') {
-      value = 'ALLOW-FROM ' + options.domain
-    }
-
-    return function frameguard (req, res, next) {
-      res.setHeader('X-Frame-Options', value)
-      next()
-    }
+    return middlewareForNormalOptions(options)
   }
 }
 
@@ -74,5 +52,35 @@ function checkOptions (options) {
     if (isArray(options.domains) && options.domains.length) { return }
 
     throw new Error('X-Frame: ALLOW-FROM requires a domain string or a domains array')
+  }
+}
+
+function middlewareForArrayOfDomains (options) {
+  var allowedHostnames = options.domains.reduce(function (result, domain) {
+    result[parseHostname(domain)] = domain
+    return result
+  }, {})
+
+  return function frameguard (req, res, next) {
+    var hostname = req.hostname || req.headers.host
+    if (allowedHostnames.hasOwnProperty(hostname)) {
+      res.setHeader('X-Frame-Options', 'ALLOW-FROM ' + allowedHostnames[hostname])
+    } else {
+      res.setHeader('X-Frame-Options', 'ALLOW-FROM ' + options.domains[0])
+    }
+
+    next()
+  }
+}
+
+function middlewareForNormalOptions (options) {
+  var value = options.action
+  if (options.action === 'ALLOW-FROM') {
+    value = 'ALLOW-FROM ' + options.domain
+  }
+
+  return function frameguard (req, res, next) {
+    res.setHeader('X-Frame-Options', value)
+    next()
   }
 }
