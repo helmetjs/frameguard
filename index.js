@@ -20,12 +20,15 @@ module.exports = function frameguard (options) {
   }
 
   if (['DENY', 'ALLOW-FROM', 'SAMEORIGIN'].indexOf(directive) === -1) {
-    throw new Error('X-Frame must be undefined, "DENY", "ALLOW-FROM", or "SAMEORIGIN"')
+    throw new Error('action must be undefined, "DENY", "ALLOW-FROM", or "SAMEORIGIN".')
   }
 
   if (directive === 'ALLOW-FROM') {
     if (!isString(domain)) {
-      throw new Error('X-Frame: ALLOW-FROM requires a second parameter')
+      throw new Error('ALLOW-FROM action requires a domain parameter.')
+    }
+    if (!domain.length) {
+      throw new Error('domain parameter must not be empty.')
     }
     directive = 'ALLOW-FROM ' + domain
   }
