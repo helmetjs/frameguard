@@ -27,3 +27,39 @@ app.use(frameguard({
 ```
 
 This has pretty good (but not 100%) browser support: IE8+, Opera 10.50+, Safari 4+, Chrome 4.1+, and Firefox 3.6.9+. The `ALLOW-FROM` header option is [not supported in most browsers](https://developer.mozilla.org/en-US/docs/Web/HTTP/X-Frame-Options#Browser_compatibility). Those browsers will ignore the entire header, [and the frame *will* be displayed](https://www.owasp.org/index.php/Clickjacking_Defense_Cheat_Sheet#Limitations_2).
+
+Allowing from multiple origins
+------------------------------
+
+The `ALLOW-FROM` header option only supports one origin, but you can allow multiple origins with nonstandard methods. This middleware does not support that, but here's how one might do it:
+
+I run `evanhahn.com`. Let's say I want to allow iframes from `example.com` and `github.com`. These websites would include a query string parameter in the iframe URL, which I would check against a whitelist.
+
+`example.com` might have some HTML like this:
+
+```html
+<iframe src="https://evanhahn.com/iframe?domain=https%3A%2F%2Fexample.com" />
+```
+
+And then `evanhahn.com` might have some code like this:
+
+```js
+// Define the URLs we'll allow.
+var ALLOWED_BY = new Set([
+  'https://example.com',
+  'https://github.com'
+])
+
+app.get('/iframe', function (req, res) {
+  // Is the URL in the whitelist?
+  // Set X-Frame-Options if so. Otherwise, we won't
+  // set the header and browsers will block it.
+  var domain = String(req.query.domain)
+  if (ALLOWED_BY.has(domain)) {
+    res.setHeader('X-Frame-Options', 'ALLOW-FROM ' + domain)
+  }
+
+  // Send the iframe as usual.
+  res.sendFile('iframe.html')
+})
+```
