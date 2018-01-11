@@ -5,98 +5,86 @@ var request = require('supertest')
 var assert = require('assert')
 
 describe('frameguard', function () {
-  function hello (req, res) {
-    res.end('Hello world!')
+  function app () {
+    var result = connect()
+    result.use(frameguard.apply(null, arguments))
+    result.use(function (req, res) {
+      res.end('Hello world!')
+    })
+    return result
   }
 
-  var app
-  beforeEach(function () {
-    app = connect()
-  })
-
   it('sets header to SAMEORIGIN with no arguments', function () {
-    app.use(frameguard()).use(hello)
-    return request(app).get('/')
+    return request(app()).get('/')
       .expect('X-Frame-Options', 'SAMEORIGIN')
   })
 
   it('sets header to SAMEORIGIN with no options', function () {
-    app.use(frameguard({})).use(hello)
-    return request(app).get('/')
+    return request(app({})).get('/')
       .expect('X-Frame-Options', 'SAMEORIGIN')
   })
 
   describe('with proper input', function () {
     it('sets header to DENY when called with lowercase "deny"', function () {
-      app.use(frameguard({ action: 'deny' })).use(hello)
-      return request(app).get('/')
+      return request(app({ action: 'deny' })).get('/')
         .expect('X-Frame-Options', 'DENY')
     })
 
     it('sets header to DENY when called with uppercase "DENY"', function () {
-      app.use(frameguard({ action: 'DENY' })).use(hello)
-      return request(app).get('/')
+      return request(app({ action: 'DENY' })).get('/')
         .expect('X-Frame-Options', 'DENY')
     })
 
     it('sets header to SAMEORIGIN when called with lowercase "sameorigin"', function () {
-      app.use(frameguard({ action: 'sameorigin' })).use(hello)
-      return request(app).get('/')
+      return request(app({ action: 'sameorigin' })).get('/')
         .expect('X-Frame-Options', 'SAMEORIGIN')
     })
 
     it('sets header to SAMEORIGIN when called with lowercase "same-origin"', function () {
-      app.use(frameguard({ action: 'same-origin' })).use(hello)
-      return request(app).get('/')
+      return request(app({ action: 'same-origin' })).get('/')
         .expect('X-Frame-Options', 'SAMEORIGIN')
     })
 
     it('sets header to SAMEORIGIN when called with uppercase "SAMEORIGIN"', function () {
-      app.use(frameguard({ action: 'SAMEORIGIN' })).use(hello)
-      return request(app).get('/')
+      return request(app({ action: 'SAMEORIGIN' })).get('/')
         .expect('X-Frame-Options', 'SAMEORIGIN')
     })
 
     it('sets header properly when called with lowercase "allow-from"', function () {
-      app.use(frameguard({
+      return request(app({
         action: 'allow-from',
         domain: 'http://example.com'
-      })).use(hello)
-      return request(app).get('/')
+      })).get('/')
         .expect('X-Frame-Options', 'ALLOW-FROM http://example.com')
     })
 
     it('sets header properly when called with uppercase "ALLOW-FROM"', function () {
-      app.use(frameguard({
+      return request(app({
         action: 'ALLOW-FROM',
         domain: 'http://example.com'
-      })).use(hello)
-      return request(app).get('/')
+      })).get('/')
         .expect('X-Frame-Options', 'ALLOW-FROM http://example.com')
     })
 
     it('sets header properly when called with lowercase "allowfrom"', function () {
-      app.use(frameguard({
+      return request(app({
         action: 'allowfrom',
         domain: 'http://example.com'
-      })).use(hello)
-      return request(app).get('/')
+      })).get('/')
         .expect('X-Frame-Options', 'ALLOW-FROM http://example.com')
     })
 
     it('sets header properly when called with uppercase "ALLOWFROM"', function () {
-      app.use(frameguard({
+      return request(app({
         action: 'ALLOWFROM',
         domain: 'http://example.com'
-      })).use(hello)
-      return request(app).get('/')
+      })).get('/')
         .expect('X-Frame-Options', 'ALLOW-FROM http://example.com')
     })
 
     it('works with String object set to "SAMEORIGIN" and doesn\'t change them', function (done) {
       var str = new String('SAMEORIGIN')  // eslint-disable-line no-new-wrappers
-      app.use(frameguard({ action: str })).use(hello)
-      request(app).get('/')
+      request(app({ action: str })).get('/')
         .expect('X-Frame-Options', 'SAMEORIGIN', function (err) {
           if (err) { return done(err) }
           assert.equal(str, 'SAMEORIGIN')
@@ -107,12 +95,10 @@ describe('frameguard', function () {
     it("works with ALLOW-FROM with String objects and doesn't change them", function (done) {
       var directive = new String('ALLOW-FROM')  // eslint-disable-line no-new-wrappers
       var url = new String('http://example.com')  // eslint-disable-line no-new-wrappers
-      app.use(frameguard({
+      request(app({
         action: directive,
         domain: url
-      }))
-      app.use(hello)
-      request(app).get('/')
+      })).get('/')
         .expect('X-Frame-Options', 'ALLOW-FROM http://example.com', function (err) {
           if (err) { return done(err) }
           assert.equal(directive, 'ALLOW-FROM')
