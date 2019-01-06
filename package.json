@@ -22,13 +22,13 @@
   },
   "bugs": "https://github.com/helmetjs/frameguard/issues",
   "scripts": {
-    "pretest": "standard",
+    "pretest": "standard --fix",
     "test": "mocha"
   },
   "devDependencies": {
     "connect": "^3.6.5",
     "mocha": "^4.1.0",
-    "standard": "^10.0.3",
+    "standard": "^12.0.1",
     "supertest": "^3.0.0"
   },
   "standard": {

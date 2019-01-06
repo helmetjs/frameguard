@@ -83,26 +83,26 @@ describe('frameguard', function () {
     })
 
     it('works with String object set to "SAMEORIGIN" and doesn\'t change them', function (done) {
-      var str = new String('SAMEORIGIN')  // eslint-disable-line no-new-wrappers
+      var str = new String('SAMEORIGIN') // eslint-disable-line no-new-wrappers
       request(app({ action: str })).get('/')
         .expect('X-Frame-Options', 'SAMEORIGIN', function (err) {
           if (err) { return done(err) }
-          assert.equal(str, 'SAMEORIGIN')
+          assert.strictEqual(str.valueOf(), 'SAMEORIGIN')
           done()
         })
     })
 
     it("works with ALLOW-FROM with String objects and doesn't change them", function (done) {
-      var directive = new String('ALLOW-FROM')  // eslint-disable-line no-new-wrappers
-      var url = new String('http://example.com')  // eslint-disable-line no-new-wrappers
+      var directive = new String('ALLOW-FROM') // eslint-disable-line no-new-wrappers
+      var url = new String('http://example.com') // eslint-disable-line no-new-wrappers
       request(app({
         action: directive,
         domain: url
       })).get('/')
         .expect('X-Frame-Options', 'ALLOW-FROM http://example.com', function (err) {
           if (err) { return done(err) }
-          assert.equal(directive, 'ALLOW-FROM')
-          assert.equal(url, 'http://example.com')
+          assert.strictEqual(directive.valueOf(), 'ALLOW-FROM')
+          assert.strictEqual(url.valueOf(), 'http://example.com')
           done()
         })
     })
@@ -142,7 +142,7 @@ describe('frameguard', function () {
   })
 
   it('names its function and middleware', function () {
-    assert.equal(frameguard.name, 'frameguard')
-    assert.equal(frameguard.name, frameguard().name)
+    assert.strictEqual(frameguard.name, 'frameguard')
+    assert.strictEqual(frameguard.name, frameguard().name)
   })
 })
