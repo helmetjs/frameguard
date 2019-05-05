@@ -20,7 +20,14 @@
     "type": "git",
     "url": "git://github.com/helmetjs/frameguard.git"
   },
-  "bugs": "https://github.com/helmetjs/frameguard/issues",
+  "homepage": "https://helmetjs.github.io/docs/frameguard/",
+  "bugs": {
+    "url": "https://github.com/helmetjs/frameguard/issues",
+    "email": "me@evanhahn.com"
+  },
+  "engines": {
+    "node": ">=4.0.0"
+  },
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
   "files": [
