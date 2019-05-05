@@ -19,7 +19,7 @@ app.use(frameguard())  // defaults to sameorigin
 // Allow from a specific host:
 app.use(frameguard({
   action: 'allow-from',
-  domain: 'http://example.com'
+  domain: 'https://example.com'
 }))
 ```
 
