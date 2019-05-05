@@ -23,6 +23,13 @@
   "bugs": "https://github.com/helmetjs/frameguard/issues",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
+  "files": [
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md",
+    "dist/index.js",
+    "dist/index.d.ts"
+  ],
   "scripts": {
     "pretest": "npm run lint",
     "prepublishOnly": "npm run build",
