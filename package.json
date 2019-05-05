@@ -5,7 +5,7 @@
     "Evan Hahn <me@evanhahn.com> (https://evanhahn.com)"
   ],
   "description": "Middleware to set X-Frame-Options headers",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "license": "MIT",
   "keywords": [
     "helmet",
