@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.1.0 - 2019-05-04
 ### Added
 - Added TypeScript type definitions. See [#1](https://github.com/helmetjs/frameguard/pull/16) and [helmetjs/helmet#188](https://github.com/helmetjs/helmet/issues/188)
 - Created a changelog
