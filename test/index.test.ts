@@ -87,7 +87,7 @@ describe('frameguard', () => {
       const str = new String('SAMEORIGIN'); // eslint-disable-line no-new-wrappers
       await request(app(frameguard({ action: str as any }))).get('/')
         .expect('X-Frame-Options', 'SAMEORIGIN');
-      expect(str.valueOf()).toBe( 'SAMEORIGIN');
+      expect(str.valueOf()).toBe('SAMEORIGIN');
       /* eslint-enable @typescript-eslint/no-explicit-any */
     });
 
@@ -110,6 +110,10 @@ describe('frameguard', () => {
   describe('with improper input', () => {
     it('fails with a bad action', () => {
       /* eslint-disable @typescript-eslint/no-explicit-any */
+      expect(frameguard.bind(null, { domain: undefined })).toThrow();
+      expect(frameguard.bind(null, { domain: 'https://example.com' })).toThrow();
+      expect(frameguard.bind(null, { action: 'sameorigin', domain: 'https://example.com' })).toThrow();
+      expect(frameguard.bind(null, { action: 'deny', domain: 'https://example.com' })).toThrow();
       expect(frameguard.bind(null, { action: ' ' })).toThrow();
       expect(frameguard.bind(null, { action: 'denyy' })).toThrow();
       expect(frameguard.bind(null, { action: 'DENNY' })).toThrow();
