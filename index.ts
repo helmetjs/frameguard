@@ -56,6 +56,8 @@ function getHeaderValueFromOptions(options?: FrameguardOptions): string {
   if (action === 'ALLOW-FROM') {
     const domain = parseDomainOption(options.domain);
     return `${action} ${domain}`;
+  } else if ('domain' in options) {
+    throw new Error(`domain parameter not supported for ${action}`);
   } else {
     return action;
   }
