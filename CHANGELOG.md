@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.0 - unreleased
+### Changed
+- Throw an error when the `domain` parameter is included for `DENY` and `SAMEORIGIN` actions (see [#19](https://github.com/helmetjs/frameguard/pull/19))
+
 ## 3.1.0 - 2019-05-04
 ### Added
 - Added TypeScript type definitions. See [#1](https://github.com/helmetjs/frameguard/pull/16) and [helmetjs/helmet#188](https://github.com/helmetjs/helmet/issues/188)
