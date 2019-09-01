@@ -81,30 +81,6 @@ describe('frameguard', () => {
       }))).get('/')
         .expect('X-Frame-Options', 'ALLOW-FROM http://example.com');
     });
-
-    it('works with String object set to "SAMEORIGIN" and doesn\'t change them', async () => {
-      /* eslint-disable @typescript-eslint/no-explicit-any */
-      const str = new String('SAMEORIGIN'); // eslint-disable-line no-new-wrappers
-      await request(app(frameguard({ action: str as any }))).get('/')
-        .expect('X-Frame-Options', 'SAMEORIGIN');
-      expect(str.valueOf()).toBe('SAMEORIGIN');
-      /* eslint-enable @typescript-eslint/no-explicit-any */
-    });
-
-    it("works with ALLOW-FROM with String objects and doesn't change them", async () => {
-      /* eslint-disable @typescript-eslint/no-explicit-any */
-      const directive = new String('ALLOW-FROM'); // eslint-disable-line no-new-wrappers
-      const url = new String('http://example.com'); // eslint-disable-line no-new-wrappers
-      await request(app(frameguard({
-        action: directive as any,
-        domain: url as any,
-      }))).get('/')
-        .expect('X-Frame-Options', 'ALLOW-FROM http://example.com');
-
-      expect(directive.valueOf()).toBe('ALLOW-FROM');
-      expect(url.valueOf()).toBe('http://example.com');
-      /* eslint-enable @typescript-eslint/no-explicit-any */
-    });
   });
 
   describe('with improper input', () => {
@@ -119,8 +95,10 @@ describe('frameguard', () => {
       expect(frameguard.bind(null, { action: 'DENNY' })).toThrow();
       expect(frameguard.bind(null, { action: ' deny ' })).toThrow();
       expect(frameguard.bind(null, { action: ' DENY ' })).toThrow();
+      expect(frameguard.bind(null, { action: new String('SAMEORIGIN') as any })).toThrow(); // eslint-disable-line no-new-wrappers
       expect(frameguard.bind(null, { action: 123 as any })).toThrow();
       expect(frameguard.bind(null, { action: false as any })).toThrow();
+      expect(frameguard.bind(null, { action: undefined as any })).toThrow();
       expect(frameguard.bind(null, { action: null as any })).toThrow();
       expect(frameguard.bind(null, { action: {} as any })).toThrow();
       expect(frameguard.bind(null, { action: [] as any })).toThrow();
@@ -137,6 +115,7 @@ describe('frameguard', () => {
       expect(frameguard.bind(null, { action: 'ALLOW-FROM', domain: 123 as any })).toThrow();
       expect(frameguard.bind(null, { action: 'ALLOW-FROM', domain: '' })).toThrow();
       expect(frameguard.bind(null, { action: 'ALLOW-FROM', domain: ['http://website.com', 'http//otherwebsite.com'] as any })).toThrow();
+      expect(frameguard.bind(null, { action: 'ALLOW-FROM', domain: new String('https://example.com') as any })).toThrow(); // eslint-disable-line no-new-wrappers
       /* eslint-enable @typescript-eslint/no-explicit-any */
     });
   });

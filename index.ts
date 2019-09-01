@@ -8,12 +8,6 @@ interface FrameguardOptions {
 function parseActionOption(actionOption: unknown): string {
   const invalidActionErr = new Error('action must be undefined, "DENY", "ALLOW-FROM", or "SAMEORIGIN".');
 
-  if (actionOption === undefined) {
-    actionOption = 'SAMEORIGIN';
-  } else if (actionOption instanceof String) {
-    actionOption = actionOption.valueOf();
-  }
-
   let result: string;
   if (typeof actionOption === 'string') {
     result = actionOption.toUpperCase();
@@ -35,23 +29,18 @@ function parseActionOption(actionOption: unknown): string {
 }
 
 function parseDomainOption(domainOption: unknown): string {
-  if (domainOption instanceof String) {
-    domainOption = domainOption.valueOf();
-  }
-
-  if (typeof domainOption !== 'string'){
+  if (typeof domainOption !== 'string') {
     throw new Error('ALLOW-FROM action requires a string domain parameter.');
   } else if (!domainOption.length) {
     throw new Error('domain parameter must not be empty.');
   }
-
   return domainOption;
 }
 
 function getHeaderValueFromOptions(options?: FrameguardOptions): string {
   options = options || {};
 
-  const action = parseActionOption(options.action);
+  const action = parseActionOption('action' in options ? options.action : 'SAMEORIGIN');
 
   if (action === 'ALLOW-FROM') {
     const domain = parseDomainOption(options.domain);

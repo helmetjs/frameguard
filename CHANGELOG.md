@@ -4,6 +4,8 @@
 ### Changed
 - Throw an error when the `domain` parameter is included for `DENY` and `SAMEORIGIN` actions. See [#19](https://github.com/helmetjs/frameguard/pull/19)
 - Drop support for Node <8
+- Drop support for setting `action` to `undefined` instead of leaving it unspecified
+- Drop support for `String` objects
 
 ## 3.1.0 - 2019-05-04
 ### Added
