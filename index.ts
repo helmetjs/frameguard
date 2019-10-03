@@ -48,7 +48,10 @@ function parseDomainOption(domainOption: unknown): string {
   return domainOption;
 }
 
-function getHeaderValueFromOptions(options?: FrameguardOptions): string {
+function getHeaderValueFromOptions(options?: FrameguardOptions): string | undefined {
+  if (options === false) {
+    return;
+  }
   options = options || {};
 
   const action = parseActionOption(options.action);
@@ -65,7 +68,11 @@ export = function frameguard (options?: FrameguardOptions) {
   const headerValue = getHeaderValueFromOptions(options);
 
   return function frameguard (_req: IncomingMessage, res: ServerResponse, next: () => void) {
-    res.setHeader('X-Frame-Options', headerValue);
+    if (headerValue) {
+      res.setHeader('X-Frame-Options', headerValue);
+    } else {
+      res.removeHeader('X-Frame-Options');
+    }
     next();
   };
 }

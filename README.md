@@ -21,6 +21,9 @@ app.use(frameguard({
   action: 'allow-from',
   domain: 'https://example.com'
 }))
+
+// Allow from ANY frames:
+app.use(frameguard(false))
 ```
 
 This has pretty good (but not 100%) browser support: IE8+, Opera 10.50+, Safari 4+, Chrome 4.1+, and Firefox 3.6.9+. The `ALLOW-FROM` header option is [not supported in Chrome or Safari](https://developer.mozilla.org/en-US/docs/Web/HTTP/X-Frame-Options#Browser_compatibility). Those browsers will ignore the entire header, [and the frame *will* be displayed](https://www.owasp.org/index.php/Clickjacking_Defense_Cheat_Sheet#Limitations_2), so you probably want to avoid using that option.
